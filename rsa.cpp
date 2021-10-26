@@ -71,7 +71,7 @@ std::string RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     std::string padded = mensagem;
     padded = padded.append(KEY_SIZE-k0-i, '\0');
     std::string salt = get_salt(k0);
-    std::string G_salt = sha3_256(salt); // esse é o m;
+    std::vector<uint8_t> G_salt = G(salt); // esse é o m G(r);
 
 
     std::cout << "mensagem pós padding = " << padded.size() << std::endl;
@@ -122,7 +122,7 @@ std::string RSA_Class::get_salt(int k0){
 std::string RSA_Class::bytes_to_hex_string(const std::vector<uint8_t>& bytes)
 {
     std::ostringstream stream;
-    std::cout << "size of bytes[] = " << bytes.size() << std::endl;
+    // std::cout << "size of bytes[] = " << bytes.size() << std::endl;
     for (uint8_t b : bytes)
     {
         stream << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(b);
@@ -132,7 +132,26 @@ std::string RSA_Class::bytes_to_hex_string(const std::vector<uint8_t>& bytes)
 }
 
 //perform the SHA3-256 hash
-std::string RSA_Class::sha3_256(const std::string& input)
+// std::string RSA_Class::sha3_256(const std::string& input)
+// {
+//     uint32_t digest_length = SHA256_DIGEST_LENGTH;
+//     const EVP_MD* algorithm = EVP_sha3_256();
+//     uint8_t* digest = static_cast<uint8_t*>(OPENSSL_malloc(digest_length));
+//     std::cout << input << std::endl;
+//     EVP_MD_CTX* context = EVP_MD_CTX_new();
+//     EVP_DigestInit_ex(context, algorithm, nullptr);
+//     EVP_DigestUpdate(context, input.c_str(), input.size());
+//     EVP_DigestFinal_ex(context, digest, &digest_length);
+//     EVP_MD_CTX_destroy(context);
+
+//     std::string output = bytes_to_hex_string(std::vector<uint8_t>(digest, digest + digest_length));
+//     OPENSSL_free(digest);
+//     return output;
+// }
+//69070dda01975c8c120c3aada1b282394e7f032fa9cf32f4cb2259a0897dfc04
+//355afb559a6d3fc6732badbcb81182a8ebe86bb00f2c030a35137a9f6d68f9b6
+//f21a07d4dc09e95d8852add1ba2bda5823d7479cf881fc1850d3
+std::vector<uint8_t> RSA_Class::sha3_256(const std::string& input)
 {
     uint32_t digest_length = SHA256_DIGEST_LENGTH;
     const EVP_MD* algorithm = EVP_sha3_256();
@@ -144,26 +163,40 @@ std::string RSA_Class::sha3_256(const std::string& input)
     EVP_DigestFinal_ex(context, digest, &digest_length);
     EVP_MD_CTX_destroy(context);
 
-    std::string output = bytes_to_hex_string(std::vector<uint8_t>(digest, digest + digest_length));
+    std::vector<uint8_t> output = std::vector<uint8_t>(digest, digest + digest_length);
     OPENSSL_free(digest);
     return output;
 }
 
+//OLD
+// std::string RSA_Class::G(const std::string& r){
+//     int counter = 0;
+    
+//     while (s.str().size() < KEY_SIZE-SALT_LENGTH){
+//         char* p = (char*) &counter;
+//         std::string rc = r + p[0] + p[1] + p[2] + p[3];
+//         std::cout << rc << std::endl;
+//         s << sha3_256(rc);
+//         counter++;
+//     }
+//     return s.str().substr(0,KEY_SIZE-SALT_LENGTH);
+// }
 
-std::string RSA_Class::G(const std::string& r){
+std::vector<uint8_t> RSA_Class::G(const std::string& r){
     int counter = 0;
     
-    std::string concat = "";
-    std::stringstream s; 
-    while (s.str().size() < KEY_SIZE-SALT_LENGTH){
+    std::vector<uint8_t> s; 
+    while (s.size() < KEY_SIZE-SALT_LENGTH){
         char* p = (char*) &counter;
         std::string rc = r + p[0] + p[1] + p[2] + p[3];
         std::cout << rc << std::endl;
-        s << sha3_256(rc);
+        std::vector<uint8_t> aux = sha3_256(rc);
+        s.insert(s.end(),aux.begin(),aux.end()); 
         counter++;
     }
-    return s.str().substr(0,KEY_SIZE-SALT_LENGTH);
+    return s;
 }
+
 
 std::string test(const std::string &message){
     int c = 0;

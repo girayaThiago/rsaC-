@@ -19,9 +19,9 @@ int main (){
     // rsa.simpleSHA256((void *)mensagem.c_str(), mensagem.length(), out);
     
     // std::string mgf1 = rsa.sha3_256(mensagem);
-    std::string mgf1 = rsa.G(mensagem);
+    std::vector<uint8_t> mgf1 = rsa.G(mensagem);
     cout << mgf1.size() << endl;
-    cout << mgf1 << endl;
+    cout << rsa.bytes_to_hex_string(mgf1) << endl;
     printf("\n");
     // std::pair<RSA_Private_Key, RSA_Public_Key> keys = rsa.generate_keys();
     return 0;

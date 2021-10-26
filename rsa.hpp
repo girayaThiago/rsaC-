@@ -30,12 +30,15 @@ private:
     std::string expand_salt(const std::string &salt);
     std::string read_text(const std::string &path);
 public:
-    std::string sha3_256(const std::string& input);
+    // std::string sha3_256(const std::string& input);
+    std::vector<uint8_t> sha3_256(const std::string& input);
     std::pair<RSA_Private_Key, RSA_Public_Key>  generate_keys();
     std::string encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
     std::string decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
     std::string padding(const std::string &mensagem, int k0, int k1);
-    std::string G(const std::string& r);
+    // std::string G(const std::string& r);
+
+    std::vector<uint8_t> G(const std::string& r);
     std::string bytes_to_hex_string(const std::vector<uint8_t>& bytes);
 };
 
