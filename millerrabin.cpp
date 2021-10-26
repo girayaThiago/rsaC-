@@ -1,4 +1,3 @@
-#include <bits/stdc++.h>
 #include "millerrabin.hpp"
 
 bool MillerRabin::test(int1024 k, int1024 n) {

@@ -1,6 +1,6 @@
 #include "rsa.hpp"
-
-
+#include "millerrabin.hpp"
+#include <openssl/sha.h>
 
 
 int1024 RSA::get_random_primo(int1024 proibido = 0){
@@ -32,4 +32,31 @@ int1024 RSA::gcd(int1024 a, int1024 b){
         }
     }
     return a;
+}
+
+std::pair<RSA_Private_Key, RSA_Public_Key> RSA::generate_keys(){
+    int1024 n, lambda_n, d;
+    int1024 p = get_random_primo();
+    int1024 q = get_random_primo(p);
+    n = p*q;
+    lambda_n = get_lambda(p,q);
+    int1024 e = 65537;
+    d = get_d(e, lambda_n);
+    //todo construir o par de chaves
+    return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
+}
+
+std::string RSA::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
+
+    return "";
+}
+std::string RSA::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
+
+    return "";
+}
+
+std::string RSA::padding(const std::string &mensagem){
+    std::string padded = "";
+    return padded;
+
 }

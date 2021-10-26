@@ -1,4 +1,6 @@
 #include "include.hpp"
+#include "millerrabin.hpp"
+#include "rsa.hpp"
 
 using namespace std;
 //retorna um numero primo entre 100k e 200k
@@ -6,14 +8,10 @@ using namespace std;
 int main (){
     
     srand(std::random_device()());
-    
-    int1024 n, lambda_n;
-    int1024 p = get_random_primo();
-    int1024 q = get_random_primo(p);
-    n = p*q;
-    lambda_n = get_lambda(p,q);
-    int1024 e = 65537;
-    get_d(e, lambda_n);
+    string mensagem = "The quick brown fox jumps over the lazy dog (tradução do inglês para A rápida raposa marrom pula por cima do cão preguiçoso) é um pangrama, frase que utiliza todas as letras do alfabeto em língua inglesa.\nAlguns tradutores de programas simplesmente transliteram a citação sem procurar usar um pangrama em português, como \"Um pequeno jabuti xereta viu dez cegonhas felizes\"";
+    cout << mensagem << endl;
+    RSA rsa;
+    std::pair<RSA_Private_Key, RSA_Public_Key> keys = rsa.generate_keys();
 
     return 0;
 }
