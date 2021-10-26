@@ -5,7 +5,8 @@
 #define SALT_LENGTH 32
 #define PADDING_LENGTH 16
 
-int1024 RSA::get_random_primo(int1024 proibido = 0){
+// retorna um numero primo aleatório entre 100k e 200k~
+int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 p = rand()%100000+100000;
     if (!(p&1)) p++;
     while (MillerRabin::test(10,p) || p == proibido){
@@ -13,19 +14,22 @@ int1024 RSA::get_random_primo(int1024 proibido = 0){
     }
     return p;
 }
-int1024 RSA::get_lambda(int1024 p, int1024 q){
+
+// calcula o lambda dos primos p e q, que é a = p-1 b = q-1 |a*b|/gcd(a,b);
+int1024 RSA_Class::get_lambda(int1024 p, int1024 q){
     p--;
     q--;
     return p*q/gcd(p,q);
 }
 
-int1024 RSA::get_d(int1024 e, int1024 lambda_n){
+// calcula o valor de d para que d*e mod lambda(n) = 1
+int1024 RSA_Class::get_d(int1024 e, int1024 lambda_n){
     int1024 d = 1;
     while ((d*e)%lambda_n != 1) d++;
     return d;
 }
 
-int1024 RSA::gcd(int1024 a, int1024 b){
+int1024 RSA_Class::gcd(int1024 a, int1024 b){
     while (a != b){
         if (a > b) {
             a -= b;
@@ -36,7 +40,7 @@ int1024 RSA::gcd(int1024 a, int1024 b){
     return a;
 }
 
-std::pair<RSA_Private_Key, RSA_Public_Key> RSA::generate_keys(){
+std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
     int1024 p = get_random_primo();
     int1024 q = get_random_primo(p);
@@ -44,21 +48,20 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA::generate_keys(){
     lambda_n = get_lambda(p,q);
     int1024 e = 65537;
     d = get_d(e, lambda_n);
-    //todo construir o par de chaves
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
 }
 
-std::string RSA::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
+std::string RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
     std::string padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
+    
+    return "";
+}
+std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
 
     return "";
 }
-std::string RSA::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
 
-    return "";
-}
-
-std::string RSA::padding(const std::string &mensagem, int k0, int k1){
+std::string RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     int i = mensagem.size();
     std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
     std::string padded = mensagem;
@@ -71,7 +74,7 @@ std::string RSA::padding(const std::string &mensagem, int k0, int k1){
     return padded;
 }
 
-std::string RSA::expand_salt(const std::string &salt){
+std::string RSA_Class::expand_salt(const std::string &salt){
     return "";
 }
 
@@ -101,7 +104,7 @@ std::string read_text(const std::string &path){
     return s;
 }
 
-std::string RSA::get_salt(int k0){
+std::string RSA_Class::get_salt(int k0){
     std::string s = "";
     for (int i = 0 ; i < k0/8; i++){
         int r = rand()%94+33;

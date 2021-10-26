@@ -20,7 +20,7 @@ public:
 
 };
 
-class RSA {
+class RSA_Class {
 private:
     int1024 get_random_primo(int1024 proibido);
     int1024 get_lambda(int1024 p, int1024 q);

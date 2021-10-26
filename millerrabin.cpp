@@ -1,5 +1,6 @@
 #include "millerrabin.hpp"
 
+// testa o numero k vezes para ver se ele é primo. retorna verdadeiro se ele talvez seja primo, retorna falso se não for.
 bool MillerRabin::test(int1024 k, int1024 n) {
     if (n <= 1 || n == 4)  return false;
     if (n <= 3) return true;
@@ -23,6 +24,8 @@ bool MillerRabin::test(int1024 k, int1024 n) {
     }
     return true;
 }
+
+// calcula R e D;
 void MillerRabin::calc_R_D(int1024 n, int1024* r, int1024 *d){
     int1024 m = n-1;
     int1024 local_r = 0;
@@ -35,6 +38,7 @@ void MillerRabin::calc_R_D(int1024 n, int1024* r, int1024 *d){
     *d = m;
 }
 
+// exponenciacão rápida modular.
 int1024 MillerRabin::power(int1024 a, int1024 d, int1024 n){
     int1024 resultado = 1;
     a = a % n;
@@ -45,7 +49,6 @@ int1024 MillerRabin::power(int1024 a, int1024 d, int1024 n){
         d = d>>1;
         a = (a * a)%n;
     }
-    // printf("resultado = %d\n", resultado);
     return resultado;
 
 }
