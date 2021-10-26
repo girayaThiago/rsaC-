@@ -44,7 +44,6 @@ int1024 RSA_Class::gcd(int1024 a, int1024 b){
     return a;
 }
 
-// gera as chaves privadas e públicas
 std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
     int1024 p = get_random_primo();
@@ -56,19 +55,16 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
 }
 
-// encrypta a mensagem
 std::string RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
     std::string padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
 
     return "";
 }
-// decrypta a mensagem
 std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
 
     return "";
 }
 
-// insere o padding baseado no tamanho da mensagem, k0 e k1
 std::string RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     int i = mensagem.size();
     // std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
@@ -91,7 +87,6 @@ std::string RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     return padded;
 }
 
-// conveniencia: imprime vetor de uint_8;
 void RSA_Class::print_vec_uint8(const std::vector<uint8_t> &v){
     std::cout << "tamanho do vetor = " <<v.size() << std::endl;
     for (int i = 0; i<v.size(); i++){
@@ -99,8 +94,6 @@ void RSA_Class::print_vec_uint8(const std::vector<uint8_t> &v){
     } 
     std::cout << std::endl;
 }
-
-// realiza o xor entre dois vetores de uint8_t
 std::vector<uint8_t> RSA_Class::xor_vec(const std::vector<uint8_t> &a,const  std::vector<uint8_t> &b){
     std::vector<uint8_t> result(a.size());
     for (int i = 0; i < a.size(); i++){
@@ -108,13 +101,10 @@ std::vector<uint8_t> RSA_Class::xor_vec(const std::vector<uint8_t> &a,const  std
     }
     return result;
 }
-
-// não usada, substituida por hash(vec, int);
 std::string RSA_Class::expand_salt(const std::string &salt){
     return "";
 }
 
-// abre um arquivo e copia seu conteudo para uma string;
 std::string read_text(const std::string &path){
     std::ifstream f;
     f.open(path);
@@ -141,7 +131,6 @@ std::string read_text(const std::string &path){
     return s;
 }
 
-// gera uma string de tamanho k0 com caracteres aleatoreos
 std::vector<uint8_t> RSA_Class::get_salt(int k0){
     std::vector<uint8_t> s;
     for (int i = 0 ; i < k0/8; i++){
@@ -152,7 +141,7 @@ std::vector<uint8_t> RSA_Class::get_salt(int k0){
     return s;
 }
 
-// conveniencia: converte um array de uint na representação literal de hexadecimal;
+//helper function to print the digest bytes as a hex string
 std::string RSA_Class::bytes_to_hex_string(const std::vector<uint8_t>& bytes)
 {
     std::ostringstream stream;
@@ -164,7 +153,6 @@ std::string RSA_Class::bytes_to_hex_string(const std::vector<uint8_t>& bytes)
     return stream.str();
 }
 
-//calcula o sha3_256 dado uma mensagem
 std::vector<uint8_t> RSA_Class::sha3_256(const std::vector<uint8_t>& input)
 {
     uint32_t digest_length = SHA256_DIGEST_LENGTH;
@@ -182,7 +170,6 @@ std::vector<uint8_t> RSA_Class::sha3_256(const std::vector<uint8_t>& input)
     return output;
 }
 
-// calcula o sha3 de tamanho length para uma mensagem r
 std::vector<uint8_t> RSA_Class::hash(const std::vector<uint8_t> &r, int length){
     unsigned int counter = 0;
     
@@ -199,4 +186,11 @@ std::vector<uint8_t> RSA_Class::hash(const std::vector<uint8_t> &r, int length){
         counter++;
     }
     return s;
+}
+
+
+std::string test(const std::string &message){
+    int c = 0;
+    
+    std::string concat = message + std::string();
 }
