@@ -7,6 +7,7 @@
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <openssl/aes.h>
+#include <openssl/bn.h>
 typedef unsigned long long int int1024;
 
 #endif
