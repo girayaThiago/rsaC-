@@ -5,13 +5,12 @@
 using namespace std;
 //retorna um numero primo entre 100k e 200k
 
-int main (){
-    
-    srand(std::random_device()());
-    string mensagem = "The quick brown fox jumps over the lazy dog (tradução do inglês para A rápida raposa marrom pula por cima do cão preguiçoso) é um pangrama, frase que utiliza todas as letras do alfabeto em língua inglesa.\nAlguns tradutores de programas simplesmente transliteram a citação sem procurar usar um pangrama em português, como \"Um pequeno jabuti xereta viu dez cegonhas felizes\"";
-    cout << mensagem << endl;
-    RSA rsa;
-    std::pair<RSA_Private_Key, RSA_Public_Key> keys = rsa.generate_keys();
 
+int main (){
+    srand(std::random_device()());
+    // string mensagem = "The quick brown fox jumps over the lazy dog (tradução do inglês para A rápida raposa marrom pula por cima do cão preguiçoso) é um pangrama, frase que utiliza todas as letras do alfabeto em língua inglesa.\nAlguns tradutores de programas simplesmente transliteram a citação sem procurar usar um pangrama em português, como \"Um pequeno jabuti xereta viu dez cegonhas felizes\"";
+    
+    RSA rsa;
+    // std::pair<RSA_Private_Key, RSA_Public_Key> keys = rsa.generate_keys();
     return 0;
 }
