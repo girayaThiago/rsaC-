@@ -43,6 +43,7 @@ int1024 MillerRabin::power(int1024 a, int1024 d, int1024 n){
     int1024 resultado = 1;
     a = a % n;
     while (d > 0){
+        // se d & 1 é verdadeiro expoente é impar (ou o expoente é impar ou terminamos de exponenciar ao numero par e o expoente agora é 1)
         if (d & 1){
             resultado = (resultado * a) % n;
         }

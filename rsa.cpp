@@ -1,10 +1,13 @@
 #include "rsa.hpp"
 #include "millerrabin.hpp"
 #include <openssl/sha.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+// #include <openssl/crypto/rsa>
 
-#define SALT_LENGTH 32
-#define PADDING_LENGTH 16
-
+#define SALT_LENGTH 256
+#define PADDING_LENGTH 128
+#define KEY_SIZE 1024
 // retorna um numero primo aleatório entre 100k e 200k~
 int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 p = rand()%100000+100000;
@@ -29,6 +32,7 @@ int1024 RSA_Class::get_d(int1024 e, int1024 lambda_n){
     return d;
 }
 
+// calcula o máximo divisor comum via algoritmo de Eclide
 int1024 RSA_Class::gcd(int1024 a, int1024 b){
     while (a != b){
         if (a > b) {
@@ -53,7 +57,7 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
 
 std::string RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
     std::string padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
-    
+
     return "";
 }
 std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
@@ -65,10 +69,10 @@ std::string RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     int i = mensagem.size();
     std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
     std::string padded = mensagem;
-    padded = padded.append(128-k0-i, '\0');
+    padded = padded.append(KEY_SIZE-k0-i, '\0');
     std::string salt = get_salt(k0);
+    std::string G_salt = sha3_256(salt); // esse é o m;
 
-    // salted.append(gambs);
 
     std::cout << "mensagem pós padding = " << padded.size() << std::endl;
     return padded;
@@ -112,4 +116,57 @@ std::string RSA_Class::get_salt(int k0){
         s.append(1,c);
     }
     return s;
+}
+
+//helper function to print the digest bytes as a hex string
+std::string RSA_Class::bytes_to_hex_string(const std::vector<uint8_t>& bytes)
+{
+    std::ostringstream stream;
+    std::cout << "size of bytes[] = " << bytes.size() << std::endl;
+    for (uint8_t b : bytes)
+    {
+        stream << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(b);
+    }
+
+    return stream.str();
+}
+
+//perform the SHA3-256 hash
+std::string RSA_Class::sha3_256(const std::string& input)
+{
+    uint32_t digest_length = SHA256_DIGEST_LENGTH;
+    const EVP_MD* algorithm = EVP_sha3_256();
+    uint8_t* digest = static_cast<uint8_t*>(OPENSSL_malloc(digest_length));
+    std::cout << input << std::endl;
+    EVP_MD_CTX* context = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(context, algorithm, nullptr);
+    EVP_DigestUpdate(context, input.c_str(), input.size());
+    EVP_DigestFinal_ex(context, digest, &digest_length);
+    EVP_MD_CTX_destroy(context);
+
+    std::string output = bytes_to_hex_string(std::vector<uint8_t>(digest, digest + digest_length));
+    OPENSSL_free(digest);
+    return output;
+}
+
+
+std::string RSA_Class::G(const std::string& r){
+    int counter = 0;
+    
+    std::string concat = "";
+    std::stringstream s; 
+    while (s.str().size() < KEY_SIZE-SALT_LENGTH){
+        char* p = (char*) &counter;
+        std::string rc = r + p[0] + p[1] + p[2] + p[3];
+        std::cout << rc << std::endl;
+        s << sha3_256(rc);
+        counter++;
+    }
+    return s.str().substr(0,KEY_SIZE-SALT_LENGTH);
+}
+
+std::string test(const std::string &message){
+    int c = 0;
+    
+    std::string concat = message + std::string();
 }
