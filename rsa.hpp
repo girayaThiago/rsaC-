@@ -3,11 +3,11 @@
 #include "include.hpp"
 
 class RSA_Private_Key{
+public:
     int1024 p;
     int1024 q;
     int1024 d;
     int1024 lambda_n;
-public:
     RSA_Private_Key(int1024 p, int1024 q, int1024 d, int1024 lambda_n): p(p), q(q), d(d), lambda_n(lambda_n){}
 
 };
@@ -31,7 +31,7 @@ public:
     std::vector<uint8_t> sha3_256(const std::vector<uint8_t>& input);
     std::pair<RSA_Private_Key, RSA_Public_Key>  generate_keys();
     int1024 encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
-    std::string decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
+    std::string decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q, int1024 mensagem);
     std::vector<uint8_t> padding(const std::string &mensagem, int k0, int k1);
 
     std::vector<uint8_t> hash(const std::vector<uint8_t>& r, int length);

@@ -15,15 +15,11 @@ int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 min;
     min.reset();
     // limitando os numeros pq miller rabin n tem o dia inteiro.
-    for (int i = 1; i < 964; i++){
+    for (int i = 1; i < 959; i++){
         max.reset(max.size()-i);
     }
-    min.set(min.size()-1000);
+    min.set(min.size()-960);
     int1024 p;
-    // do{
-    //     p = int1024::random(min,max, randstate);
-    //     if (!(p.odd())) p++;
-    // } while (!MillerRabin::test(3,p));
     p = int1024::random(min,max, randstate);
     if (!(p.odd())) p++;
     while (!MillerRabin::test(3,p)) {
@@ -40,7 +36,7 @@ int1024 RSA_Class::get_lambda_d(int1024 p, int1024 q, int1024* lambda_p, int1024
 	mpz_inits(num1, num2, lambda, gcd, e, d1, d2, NULL);
 	mpz_set_str(num1,p.to_string().c_str(), 2);
 	mpz_set_str(num2,q.to_string().c_str(), 2);
-    mpz_set_ui(e,65537);
+    mpz_set_ui(e,7477);
     mpz_mul(lambda, num1, num2);
     mpz_gcdext(gcd,d1,d2,num1,num2);
     mpz_div(lambda, lambda, gcd);
@@ -87,7 +83,7 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
 
     get_lambda_d(p,q,&lambda_n,&d);
     
-    int1024 e = 65537;
+    int1024 e = 7477;
     if (e * d % lambda_n == 1) std::cout << "deu bom" << std::endl;
     else std::cout << "deu ruim" << std::endl;
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
@@ -103,10 +99,12 @@ int1024 RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,cons
     std::cout << padded_num.to_hex_string() << std::endl;
     // std::cout << "q.e = " << q.e.to_ullong() << "q.n = " << q.n.to_ullong() << std::endl;
     int1024 encrypted = MillerRabin::power(padded_num, q.e,q.n);
+    // signing
+    encrypted = MillerRabin::power(encrypted, p.d,q.n);
     std::cout << encrypted.to_hex_string() << std::endl;
     return encrypted;
 }
-std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
+std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,int1024 mensagem){
 
     return "";
 }

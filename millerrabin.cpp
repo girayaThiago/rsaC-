@@ -13,7 +13,7 @@ bool MillerRabin::test(int k, int1024 n) {
     // printf("r = %d, d = %d\n", r, d);
 
     while (k-- > 0){
-        int1024 a = int1024::random(2,n-4,RSA_Class::randstate);
+        int1024 a = rand()+2;
         x = power(a,d,n);
         // std::cout << "k = " << k << std::endl;
         if (!(x == 1 || x == n-1)){
