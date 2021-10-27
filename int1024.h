@@ -49,6 +49,7 @@ public:
 	std::string to_b64_string();
 	std::string to_hex_string();
 	std::string to_int_string();
+	static int1024 random(int1024 min, int1024 max, gmp_randstate_t s);
 };
 
 #undef BITSET_SIZE

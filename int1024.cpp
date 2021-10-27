@@ -186,5 +186,24 @@ bool int1024::odd(){
 }
 bool int1024::even(){
 	return !odd();
+}
 
+// retorna um numero de 1024 bits aleatório entre min e max
+int1024 int1024::random(int1024 min, int1024 max, gmp_randstate_t randstate){
+	mpz_t num1, num2, num3;
+	mpz_inits(num1, num2, num3, NULL);
+	mpz_set_str(num1,min.to_string().c_str(), 2);
+	mpz_set_str(num2,max.to_string().c_str(), 2);
+	// max = max - min;
+	mpz_sub(num2, num2, num1);
+	// gera um inteiro sem sinal de 0 ate max-1
+	mpz_urandomm(num3, randstate, num2);
+	// num3 = num3 + min;
+	mpz_add(num3, num1, num3);
+	// mpz_out_str(stdout,2,num3);
+	char c[1025];
+	mpz_get_str(c,2,num3);
+	int1024 test = std::string(c);
+	mpz_clears(num1, num2, num3, NULL);
+	return test;
 }

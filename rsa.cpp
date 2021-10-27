@@ -10,11 +10,20 @@
 #define KEY_SIZE 1024/8
 // retorna um numero primo aleatório entre 100k e 200k~
 int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
-    int1024 p = rand()%100000+100000;
-    if (!(p.odd())) p++;
-    while (!MillerRabin::test(6,p) || p == proibido){
-        p+=2;
+    int1024 max;
+    max.set();
+    int1024 min;
+    min.reset();
+    // limitando os numeros 
+    for (int i = 1; i < 768; i++){
+        max.reset(max.size()-i);
     }
+    min.set(min.size()-800);
+    int1024 p;
+    do{
+        p = int1024::random(min,max, randstate);
+        if (!(p.odd())) p++;
+    } while (!MillerRabin::test(3,p));
     return p;
 }
 
@@ -74,12 +83,18 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
 }
 
-std::string RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
+int1024 RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
     std::vector<uint8_t> padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
     printf(":D\n");
     // converter padded para int1024 e elevar a 'e';
-    // int1024 padded_num = 
-    return "";
+    int1024 padded_num(padded);
+    // padded_num^e; 
+    print_vec_uint8(padded);
+    std::cout << padded_num.to_hex_string() << std::endl;
+    std::cout << "q.e = " << q.e.to_ullong() << "q.n = " << q.n.to_ullong() << std::endl;
+    int1024 encrypted = MillerRabin::power(padded_num, q.e,KEY_SIZE);
+    std::cout << encrypted.to_hex_string() << std::endl;
+    return encrypted;
 }
 std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
 
@@ -132,9 +147,6 @@ std::vector<uint8_t> RSA_Class::xor_vec(const std::vector<uint8_t> &a,const  std
     }
     return result;
 }
-std::string RSA_Class::expand_salt(const std::string &salt){
-    return "";
-}
 
 std::string read_text(const std::string &path){
     std::ifstream f;
@@ -164,6 +176,7 @@ std::string read_text(const std::string &path){
 
 std::vector<uint8_t> RSA_Class::get_salt(int k0){
     std::vector<uint8_t> s;
+    
     for (int i = 0 ; i < k0; i++){
         int r = rand()%94+33;
         uint8_t c = r;
