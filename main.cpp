@@ -18,9 +18,9 @@ int main (){
     RSA_Class rsa;
     std::pair<RSA_Private_Key, RSA_Public_Key> keys = rsa.generate_keys();
     cout << "gerou chaves" << endl;
-    rsa.encrypt(keys.first, keys.second, mensagem);
+    int1024 encrypted = rsa.encrypt(keys.first, keys.second, mensagem);
     cout << "encrypted" << endl;
-
+    encrypted.to_mpz_string();
     gmp_randclear(RSA_Class::randstate);
     return 0;
 }

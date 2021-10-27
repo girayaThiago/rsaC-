@@ -15,10 +15,10 @@ int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 min;
     min.reset();
     // limitando os numeros pq miller rabin n tem o dia inteiro.
-    for (int i = 1; i < 960; i++){
+    for (int i = 1; i < 964; i++){
         max.reset(max.size()-i);
     }
-    min.set(min.size()-980);
+    min.set(min.size()-1000);
     int1024 p;
     // do{
     //     p = int1024::random(min,max, randstate);
@@ -77,7 +77,12 @@ int1024 RSA_Class::get_lambda_d(int1024 p, int1024 q, int1024* lambda_p, int1024
 std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
     int1024 p = get_random_primo();
-    int1024 q = get_random_primo(p);
+    std::cout << "primeira chave escolhida = "; 
+    p.to_mpz_string();
+    // yolo existe uma chance de p == q :D
+    int1024 q = get_random_primo();
+    std::cout << "primeira chave escolhida = "; 
+    q.to_mpz_string();
     n = p*q;
 
     get_lambda_d(p,q,&lambda_n,&d);
@@ -96,8 +101,8 @@ int1024 RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,cons
     // padded_num^e; 
     print_vec_uint8(padded);
     std::cout << padded_num.to_hex_string() << std::endl;
-    std::cout << "q.e = " << q.e.to_ullong() << "q.n = " << q.n.to_ullong() << std::endl;
-    int1024 encrypted = MillerRabin::power(padded_num, q.e,KEY_SIZE);
+    // std::cout << "q.e = " << q.e.to_ullong() << "q.n = " << q.n.to_ullong() << std::endl;
+    int1024 encrypted = MillerRabin::power(padded_num, q.e,q.n);
     std::cout << encrypted.to_hex_string() << std::endl;
     return encrypted;
 }
@@ -207,7 +212,6 @@ std::vector<uint8_t> RSA_Class::sha3_256(const std::vector<uint8_t>& input)
     uint32_t digest_length = SHA256_DIGEST_LENGTH;
     const EVP_MD* algorithm = EVP_sha3_256();
     uint8_t* digest = static_cast<uint8_t*>(OPENSSL_malloc(digest_length));
-    // std::cout << input << std::endl;
     EVP_MD_CTX* context = EVP_MD_CTX_new();
     EVP_DigestInit_ex(context, algorithm, nullptr);
     EVP_DigestUpdate(context, &input[0], input.size());
