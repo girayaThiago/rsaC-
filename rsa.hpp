@@ -32,7 +32,7 @@ public:
     std::pair<RSA_Private_Key, RSA_Public_Key>  generate_keys();
     std::string encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
     std::string decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
-    std::string padding(const std::string &mensagem, int k0, int k1);
+    std::vector<uint8_t> padding(const std::string &mensagem, int k0, int k1);
 
     std::vector<uint8_t> hash(const std::vector<uint8_t>& r, int length);
     std::string bytes_to_hex_string(const std::vector<uint8_t>& bytes);

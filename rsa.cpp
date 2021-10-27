@@ -5,9 +5,9 @@
 #include <openssl/bio.h>
 // #include <openssl/crypto/rsa>
 
-#define SALT_LENGTH 256
-#define PADDING_LENGTH 128
-#define KEY_SIZE 1024
+#define SALT_LENGTH 256/8
+#define PADDING_LENGTH 128/8
+#define KEY_SIZE 1024/8
 // retorna um numero primo aleatório entre 100k e 200k~
 int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 p = rand()%100000+100000;
@@ -30,7 +30,7 @@ int1024 RSA_Class::get_lambda_d(int1024 p, int1024 q, int1024* lambda_p, int1024
     mpz_mul(lambda, num1, num2);
     mpz_gcdext(gcd,d1,d2,num1,num2);
     mpz_div(lambda, lambda, gcd);
-    mpz_gcdext(gcd, d1,d2,e,lambda);
+    mpz_gcdext(gcd,d1,d2,e,lambda);
     //recupera os valores
     char c[1025];
     char c2[1025];
@@ -62,16 +62,12 @@ int1024 RSA_Class::get_lambda_d(int1024 p, int1024 q, int1024* lambda_p, int1024
 
 std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
-    // std::cout << "entrou em generate keys()" << std::endl;
     int1024 p = get_random_primo();
-    // std::cout << p.to_string() << std::endl;
     int1024 q = get_random_primo(p);
-    // std::cout << q.to_string() << std::endl;
     n = p*q;
 
     get_lambda_d(p,q,&lambda_n,&d);
     
-    // std::cout << lambda_n.to_string() << std::endl;
     int1024 e = 65537;
     if (e * d % lambda_n == 1) std::cout << "deu bom" << std::endl;
     else std::cout << "deu ruim" << std::endl;
@@ -79,8 +75,9 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
 }
 
 std::string RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
-    std::string padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
-
+    std::vector<uint8_t> padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
+    printf(":D\n");
+    
     return "";
 }
 std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
@@ -88,26 +85,29 @@ std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,
     return "";
 }
 
-std::string RSA_Class::padding(const std::string &mensagem, int k0, int k1){
+// Padding OAEP
+std::vector<uint8_t> RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     int i = mensagem.size();
-    // std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
+    std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
     std::string padded = mensagem;
     padded = padded.append(KEY_SIZE-k0-i, '\0');
-    // std::cout << "mensagem pós padding = " << padded.size() << std::endl;
+    std::cout << "mensagem pós padding = " << padded << "tamanho = " << padded.size() << " " << std::endl;
     std::vector<uint8_t> padded_uint8;
     padded_uint8.insert(padded_uint8.end(), padded.begin(), padded.end());
-    std::cout << padded_uint8.size() << std::endl;
+    // std::cout << padded_uint8.size() << std::endl;
     for (int i : padded_uint8) std::cout << i;
     std::cout << std::endl;
-    std::vector<uint8_t> salt = get_salt(k0);
-    std::vector<uint8_t> G_salt = hash(salt, KEY_SIZE-SALT_LENGTH); // esse é o m G(r);
-    std::vector<uint8_t> xor_G_r = xor_vec(G_salt, padded_uint8);
+    std::vector<uint8_t> r = get_salt(k0);
+    std::vector<uint8_t> G_salt = hash(r, KEY_SIZE-SALT_LENGTH); // esse é o m G(r);
+    std::vector<uint8_t> xor_G_r = xor_vec(G_salt, padded_uint8); // aplica xor com G(r) e salt
     print_vec_uint8(xor_G_r);
-    std::vector<uint8_t> H_xor = hash(xor_G_r, SALT_LENGTH);
-    print_vec_uint8(H_xor);
+    std::vector<uint8_t> H_mensagem = hash(xor_G_r, SALT_LENGTH);
+    std::vector<uint8_t> xor_H_r = xor_vec(H_mensagem, r);
+    // OAEP feito
+    xor_G_r.insert(xor_G_r.end(), xor_H_r.begin(), xor_H_r.end());
     // std::ios_base::binary 
-    
-    return padded;
+    std::cout << "padding OAEP feito" << std::endl;
+    return xor_G_r;
 }
 
 void RSA_Class::print_vec_uint8(const std::vector<uint8_t> &v){
@@ -156,7 +156,7 @@ std::string read_text(const std::string &path){
 
 std::vector<uint8_t> RSA_Class::get_salt(int k0){
     std::vector<uint8_t> s;
-    for (int i = 0 ; i < k0/8; i++){
+    for (int i = 0 ; i < k0; i++){
         int r = rand()%94+33;
         uint8_t c = r;
         s.push_back(c);
@@ -201,8 +201,6 @@ std::vector<uint8_t> RSA_Class::hash(const std::vector<uint8_t> &r, int length){
         uint8_t* p = (uint8_t*)&counter;
         std::vector<uint8_t> rc = r;
         for (int i = 0; i < 4; i++) rc.push_back(p[i]);
-        
-
         // std::cout << rc << std::endl;
         std::vector<uint8_t> aux = sha3_256(rc);
         s.insert(s.end(),aux.begin(),aux.end()); 
