@@ -14,16 +14,21 @@ int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     max.set();
     int1024 min;
     min.reset();
-    // limitando os numeros 
-    for (int i = 1; i < 768; i++){
+    // limitando os numeros pq miller rabin n tem o dia inteiro.
+    for (int i = 1; i < 960; i++){
         max.reset(max.size()-i);
     }
-    min.set(min.size()-800);
+    min.set(min.size()-980);
     int1024 p;
-    do{
-        p = int1024::random(min,max, randstate);
-        if (!(p.odd())) p++;
-    } while (!MillerRabin::test(3,p));
+    // do{
+    //     p = int1024::random(min,max, randstate);
+    //     if (!(p.odd())) p++;
+    // } while (!MillerRabin::test(3,p));
+    p = int1024::random(min,max, randstate);
+    if (!(p.odd())) p++;
+    while (!MillerRabin::test(3,p)) {
+        p+=2;
+    } 
     return p;
 }
 

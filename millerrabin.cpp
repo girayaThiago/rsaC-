@@ -3,7 +3,7 @@
 
 // testa o numero k vezes para ver se ele é primo. retorna verdadeiro se ele talvez seja primo, retorna falso se não for.
 bool MillerRabin::test(int k, int1024 n) {
-    std::cout << "testando numero = " << n.to_hex_string() << std::endl;
+    n.to_mpz_string();
     if (n <= 1 || n == 4)  return false;
     if (n <= 3) return true;
     int1024 x,r,d;

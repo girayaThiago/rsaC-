@@ -37,7 +37,14 @@ std::string int1024::to_hex_string() {
 std::string int1024::to_int_string() {
 	return std::to_string(size());
 }
-
+void int1024::to_mpz_string(){
+	mpz_t num;
+	mpz_init(num);
+	mpz_set_str(num,this->to_string().c_str(), 2);
+	mpz_out_str(stdout, 10, num);
+	std::cout << std::endl;
+	mpz_clear(num);
+}
 
 int1024 int1024::operator+(const int1024 & other) const {
 	int1024 result = 0;
