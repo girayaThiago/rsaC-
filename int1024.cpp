@@ -214,3 +214,18 @@ int1024 int1024::random(int1024 min, int1024 max, gmp_randstate_t randstate){
 	mpz_clears(num1, num2, num3, NULL);
 	return test;
 }
+
+std::vector<uint8_t> int1024::to_vec8(){
+	std::vector<uint8_t> v;
+	int1024 copy = *this;
+	v.clear();
+	std::cout << ":D" << std::endl;
+	for (int i = 0; i < size()/8; i++){
+		int1024 byte = 0xFF;
+		byte &= copy;
+		copy >>=8;
+		v.emplace_back(byte.to_ulong());
+	}
+	std::reverse(v.begin(), v.end());
+	return v;
+}

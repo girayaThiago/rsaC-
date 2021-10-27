@@ -30,8 +30,8 @@ public:
     void print_vec_uint8(const std::vector<uint8_t> &v);
     std::vector<uint8_t> sha3_256(const std::vector<uint8_t>& input);
     std::pair<RSA_Private_Key, RSA_Public_Key>  generate_keys();
-    int1024 encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem);
-    std::string decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q, int1024 mensagem);
+    int1024 encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q1,const RSA_Public_Key &q2,const std::string &mensagem);
+    std::string decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q1,const RSA_Public_Key &q2, int1024 mensagem);
     std::vector<uint8_t> padding(const std::string &mensagem, int k0, int k1);
 
     std::vector<uint8_t> hash(const std::vector<uint8_t>& r, int length);

@@ -10,22 +10,38 @@
 #define KEY_SIZE 1024/8
 // retorna um numero primo aleatório entre 100k e 200k~
 int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
-    int1024 max;
-    max.set();
-    int1024 min;
-    min.reset();
-    // limitando os numeros pq miller rabin n tem o dia inteiro.
-    for (int i = 1; i < 959; i++){
-        max.reset(max.size()-i);
+    mpz_t num1;
+	mpz_init(num1);
+	std::string s;
+    if (proibido == 0){
+        s = "31060417014537475679";
+    } else {
+        s = "57321168577908092509";
     }
-    min.set(min.size()-960);
-    int1024 p;
-    p = int1024::random(min,max, randstate);
-    if (!(p.odd())) p++;
-    while (!MillerRabin::test(3,p)) {
-        p+=2;
-    } 
-    return p;
+    char c[1025];
+    mpz_set_str(num1, s.c_str(),10);
+	mpz_get_str(c,2,num1);
+	int1024 test = std::string(c);
+	mpz_clear(num1);
+    return test;
+    
+        
+    // int1024 max;
+    // max.set();
+    // int1024 min;
+    // min.reset();
+    // // limitando os numeros pq miller rabin n tem o dia inteiro.
+    // for (int i = 1; i < 959; i++){
+    //     max.reset(max.size()-i);
+    // }
+    // min.set(min.size()-960);
+    // int1024 p;
+    // p = int1024::random(min,max, randstate);
+    // if (!(p.odd())) p++;
+    // while (!MillerRabin::test(3,p)) {
+    //     p+=2;
+    // } 
+    // return p;
 }
 
 // calcula o lambda dos primos p e q, que é a = p-1 b = q-1 |a*b|/gcd(a,b);
@@ -72,12 +88,12 @@ int1024 RSA_Class::get_lambda_d(int1024 p, int1024 q, int1024* lambda_p, int1024
 
 std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
-    int1024 p = get_random_primo();
+    int1024 p = get_random_primo(0);
     std::cout << "primeira chave escolhida = "; 
     p.to_mpz_string();
     // yolo existe uma chance de p == q :D
-    int1024 q = get_random_primo();
-    std::cout << "primeira chave escolhida = "; 
+    int1024 q = get_random_primo(1);
+    std::cout << "segunda chave escolhida = "; 
     q.to_mpz_string();
     n = p*q;
 
@@ -89,7 +105,7 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
 }
 
-int1024 RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
+int1024 RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q1,const RSA_Public_Key &q2,const std::string &mensagem){
     std::vector<uint8_t> padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
     printf(":D\n");
     // converter padded para int1024 e elevar a 'e';
@@ -98,15 +114,31 @@ int1024 RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,cons
     print_vec_uint8(padded);
     std::cout << padded_num.to_hex_string() << std::endl;
     // std::cout << "q.e = " << q.e.to_ullong() << "q.n = " << q.n.to_ullong() << std::endl;
-    int1024 encrypted = MillerRabin::power(padded_num, q.e,q.n);
-    // signing
-    encrypted = MillerRabin::power(encrypted, p.d,q.n);
+    //alice alice
+    int1024 encrypted = MillerRabin::power(padded_num, q2.e,q2.n);
+    // signing alice bob
+    encrypted = MillerRabin::power(encrypted, p.d,q1.n);
     std::cout << encrypted.to_hex_string() << std::endl;
     return encrypted;
 }
-std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,int1024 mensagem){
-
-    return "";
+std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q1,const RSA_Public_Key &q2, int1024 mensagem){
+    // unsigning
+    int1024 unsign = MillerRabin::power(mensagem, q2.e,q2.n);
+    unsign = MillerRabin::power(unsign, p.d,q1.n);
+    std::vector<uint8_t> P = unsign.to_vec8();
+    std::vector<uint8_t> P1;
+    std::vector<uint8_t> P2;
+    P1.insert(P1.begin(), P.begin(), P.end()-SALT_LENGTH);
+    P2.insert(P2.begin(), P.end()-SALT_LENGTH,P.end());
+    std::vector<uint8_t> H_p1 = hash(P1, KEY_SIZE-SALT_LENGTH);
+    std::vector<uint8_t> r = xor_vec(H_p1, P2);
+    std::vector<uint8_t> G_r = hash(r, SALT_LENGTH);
+    std::vector<uint8_t> decrypt = xor_vec(G_r, P1);
+    std::string decrypted;
+    for (auto b : decrypt){
+        decrypted.append(1,(char)b);
+    }
+    return decrypted;
 }
 
 // Padding OAEP

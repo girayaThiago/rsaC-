@@ -12,12 +12,12 @@ public:
 	int1024(const std::string & s) : std::bitset<BITSET_SIZE>(s) {}
 	int1024(const std::vector<uint8_t> & s): std::bitset<BITSET_SIZE>() {
 		for (int i  = 0; i < s.size(); i++){ 
-			//big endian
+			//little endian
 			int1024 block;
 			block = s[i];
 			block <<= 8*(i);
 			(*this) |= block;
-			// //little endian
+			// //big endian
 			// int1024 block;
 			// block = s[i];
 			// block <<= size()-8*(i+1);
@@ -50,6 +50,7 @@ public:
 	std::string to_hex_string();
 	std::string to_int_string();
 	void to_mpz_string();
+	std::vector<uint8_t> to_vec8();
 	static int1024 random(int1024 min, int1024 max, gmp_randstate_t s);
 };
 
