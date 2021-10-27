@@ -77,7 +77,8 @@ std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
 std::string RSA_Class::encrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
     std::vector<uint8_t> padded = padding(mensagem, SALT_LENGTH,PADDING_LENGTH);
     printf(":D\n");
-    
+    // converter padded para int1024 e elevar a 'e';
+    // int1024 padded_num = 
     return "";
 }
 std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,const std::string &mensagem){
@@ -88,25 +89,32 @@ std::string RSA_Class::decrypt(const RSA_Private_Key &p,const RSA_Public_Key &q,
 // Padding OAEP
 std::vector<uint8_t> RSA_Class::padding(const std::string &mensagem, int k0, int k1){
     int i = mensagem.size();
-    std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
+    // std::cout << "mensagem pré padding = " << mensagem.size() << std::endl;
     std::string padded = mensagem;
     padded = padded.append(KEY_SIZE-k0-i, '\0');
-    std::cout << "mensagem pós padding = " << padded << "tamanho = " << padded.size() << " " << std::endl;
+    // std::cout << "mensagem pós padding = " << padded << "tamanho = " << padded.size() << " " << std::endl;
     std::vector<uint8_t> padded_uint8;
     padded_uint8.insert(padded_uint8.end(), padded.begin(), padded.end());
     // std::cout << padded_uint8.size() << std::endl;
     for (int i : padded_uint8) std::cout << i;
     std::cout << std::endl;
-    std::vector<uint8_t> r = get_salt(k0);
-    std::vector<uint8_t> G_salt = hash(r, KEY_SIZE-SALT_LENGTH); // esse é o m G(r);
-    std::vector<uint8_t> xor_G_r = xor_vec(G_salt, padded_uint8); // aplica xor com G(r) e salt
-    print_vec_uint8(xor_G_r);
+    std::vector<uint8_t> r = get_salt(k0); // r
+    // std::cout << "salt:";
+    // print_vec_uint8(r);
+    std::vector<uint8_t> G_r = hash(r, KEY_SIZE-SALT_LENGTH ); // esse é o m G(r);
+    // std::cout << "G(r):";
+    // print_vec_uint8(G_r);
+    std::vector<uint8_t> xor_G_r = xor_vec(G_r, padded_uint8); // aplica xor com G(r) e salt
+    // std::cout << "xor (G(r), r):";
+    // print_vec_uint8(xor_G_r);
+
     std::vector<uint8_t> H_mensagem = hash(xor_G_r, SALT_LENGTH);
     std::vector<uint8_t> xor_H_r = xor_vec(H_mensagem, r);
     // OAEP feito
     xor_G_r.insert(xor_G_r.end(), xor_H_r.begin(), xor_H_r.end());
     // std::ios_base::binary 
     std::cout << "padding OAEP feito" << std::endl;
+    print_vec_uint8(xor_G_r);
     return xor_G_r;
 }
 
@@ -114,8 +122,8 @@ void RSA_Class::print_vec_uint8(const std::vector<uint8_t> &v){
     std::cout << "tamanho do vetor = " <<v.size() << std::endl;
     for (int i = 0; i<v.size(); i++){
         std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)v[i] << " ";
-    } 
-    std::cout << std::endl;
+    }
+    std::cout << std::endl << std::dec;
 }
 std::vector<uint8_t> RSA_Class::xor_vec(const std::vector<uint8_t> &a,const  std::vector<uint8_t> &b){
     std::vector<uint8_t> result(a.size());
@@ -194,6 +202,7 @@ std::vector<uint8_t> RSA_Class::sha3_256(const std::vector<uint8_t>& input)
 }
 
 std::vector<uint8_t> RSA_Class::hash(const std::vector<uint8_t> &r, int length){
+    std::cout << "executando has expansivo para tamanho = " << length << std::endl;
     unsigned int counter = 0;
     
     std::vector<uint8_t> s; 
