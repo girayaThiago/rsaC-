@@ -3,6 +3,7 @@
 
 // testa o numero k vezes para ver se ele é primo. retorna verdadeiro se ele talvez seja primo, retorna falso se não for.
 bool MillerRabin::test(int k, int1024 n) {
+    std::cout << "testando o numero ";
     n.to_mpz_string();
     if (n <= 1 || n == 4)  return false;
     if (n <= 3) return true;
@@ -13,7 +14,7 @@ bool MillerRabin::test(int k, int1024 n) {
     // printf("r = %d, d = %d\n", r, d);
 
     while (k-- > 0){
-        int1024 a = rand()+2;
+        int1024 a = int1024::random(2,n-4,RSA_Class::randstate);
         x = power(a,d,n);
         // std::cout << "k = " << k << std::endl;
         if (!(x == 1 || x == n-1)){
