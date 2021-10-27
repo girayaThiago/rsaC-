@@ -3,8 +3,8 @@
 
 #include <bitset>
 #include <string>
-
-#define BITSET_SIZE 128
+#include "include.hpp"
+#define BITSET_SIZE 1024
 
 class int1024 : public std::bitset<BITSET_SIZE> {
 public:
@@ -17,7 +17,20 @@ public:
 	int1024 operator*(const int1024 & other) const;
 	int1024 operator/(const int1024 & other) const;
 	int1024 operator%(const int1024 & other) const;
-
+	bool operator<(const int1024 & other) const;
+	bool operator>(const int1024 & other) const;
+	bool operator==(const int1024 & other) const;
+	bool operator!=(const int1024 & other) const;
+	bool operator>=(const int1024 & other) const;
+	bool operator<=(const int1024 & other) const;
+	bool odd();
+	bool even();
+	int1024& operator+=(const int1024 & other);
+	int1024& operator-=(const int1024 & other);
+	int1024 operator++(int);
+	int1024 operator--(int);
+	int1024& operator*=(const int1024 & other);
+	int1024& operator/=(const int1024 & other);
 	std::string to_b64_string();
 	std::string to_hex_string();
 	std::string to_int_string();

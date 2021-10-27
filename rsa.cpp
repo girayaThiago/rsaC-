@@ -11,8 +11,8 @@
 // retorna um numero primo aleatório entre 100k e 200k~
 int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 p = rand()%100000+100000;
-    if (!(p&1)) p++;
-    while (MillerRabin::test(10,p) || p == proibido){
+    if (!(p.odd())) p++;
+    while (MillerRabin::test(10,p)){
         p+=2;
     }
     return p;
@@ -46,10 +46,17 @@ int1024 RSA_Class::gcd(int1024 a, int1024 b){
 
 std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
+    // std::cout << "entrou em generate keys()" << std::endl;
     int1024 p = get_random_primo();
+    // std::cout << "gerou o primeiro numero" << std::endl;
+    // std::cout << p.to_string() << std::endl;
     int1024 q = get_random_primo(p);
+    // std::cout << "gerou o segundo numero" << std::endl;
+    // std::cout << q.to_string() << std::endl;
+
     n = p*q;
     lambda_n = get_lambda(p,q);
+    // std::cout << lambda_n.to_string() << std::endl;
     int1024 e = 65537;
     d = get_d(e, lambda_n);
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
@@ -186,11 +193,4 @@ std::vector<uint8_t> RSA_Class::hash(const std::vector<uint8_t> &r, int length){
         counter++;
     }
     return s;
-}
-
-
-std::string test(const std::string &message){
-    int c = 0;
-    
-    std::string concat = message + std::string();
 }

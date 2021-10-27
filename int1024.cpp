@@ -1,6 +1,6 @@
 #include "int1024.h"
 
-
+#include <stack>
 #include <iostream>
 std::string int1024::to_b64_string() {
 	static const char base64[] = {
@@ -19,14 +19,14 @@ std::string int1024::to_hex_string() {
 		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 	};
 
-	for (int i = size(); i > 0; i-=4) {
-		std::cout
-			<< (*this)[i-1]
-			<< (*this)[i-2]
-			<< (*this)[i-3]
-			<< (*this)[i-4]
-			<< " ";
-	}
+	// for (int i = size(); i > 0; i-=4) {
+	// 	std::cout
+	// 		<< (*this)[i-1]
+	// 		<< (*this)[i-2]
+	// 		<< (*this)[i-3]
+	// 		<< (*this)[i-4]
+	// 		<< " ";
+	// }
 	std::cout << std::endl;
 
 	for (int i = size(); i > 0; i-=4) {
@@ -76,16 +76,127 @@ int1024 int1024::operator-(const int1024 & other) const {
 }
 
 int1024 int1024::operator*(const int1024 & other) const {
-	(void) other;
-	return 0;
+	int1024 other2 = other;
+	std::stack<int> s;
+	while(other2 > 1){
+		if (other2[0]){
+			s.push(1);
+			other2 = other2-1;
+		} else {
+			s.push(0);
+			other2 >>= 1;
+		}
+	}
+	other2 = *this;
+	while (!s.empty())
+	{
+		if (!s.top()){
+			other2 <<=1;
+		}else {
+			other2 = *this + other2;
+		}
+		s.pop();
+	}
+	return other2;
+}
+
+bool int1024::operator<(const int1024 & other) const{
+	return !(*this >= other);
+}
+bool int1024::operator>(const int1024 & other) const{
+	return (!(*this < other) && !(*this == other));
+}
+
+bool int1024::operator==(const int1024 & other) const{
+	int1024 other2 = (*this-other);
+	if (other2.count()){
+		return false;
+	} else {
+		return true;
+	}	
+}
+bool int1024::operator!=(const int1024 & other) const{
+	return !((*this) == other);	
+}
+bool int1024::operator<=(const int1024 & other) const{
+	int1024 temp = *this;
+	return !(temp > other);
+}
+bool int1024::operator>=(const int1024 & other) const{
+	int sthis = (*this)[size()-1], sother = other[other.size()-1];
+	if (sthis > sother) return true;
+	else if (sthis < sother) return false;
+	else {
+		int1024 other2 = (*this-other);
+		int ssub = other2[other2.size()-1];
+		if (sthis){
+			return sthis != ssub;
+		} else {
+			return sthis == ssub;
+		}
+	}
 }
 
 int1024 int1024::operator/(const int1024 & other) const {
-	(void) other;
-	return 0;
+	mpz_t num, num2, num3;
+	mpz_inits(num, num2, num3, NULL);
+	mpz_set_str(num,this->to_string().c_str(), 2);
+	mpz_set_str(num2,other.to_string().c_str(), 2);
+	mpz_div(num3, num, num2);
+	mpz_out_str(stdout, 10, num3);
+	std::cout << std::endl;
+	char c[1025];
+	mpz_get_str(c,2,num3);
+	std::cout << c << std::endl;
+	int1024 test = std::string(c);
+	return test;
 }
 
 int1024 int1024::operator%(const int1024 & other) const {
-	(void) other;
-	return 0;
+	mpz_t num, num2, num3;
+	mpz_inits(num, num2, num3, NULL);
+	mpz_set_str(num,this->to_string().c_str(), 2);
+	mpz_set_str(num2,other.to_string().c_str(), 2);
+	mpz_mod(num3, num, num2);
+	mpz_out_str(stdout, 10, num3);
+	std::cout << std::endl;
+	char c[1025];
+	mpz_get_str(c,2,num3);
+	std::cout << c << std::endl;
+	int1024 test = std::string(c);
+	return test;
+}
+
+int1024& int1024::operator+=(const int1024 & other){
+	*this = *this + other;
+	return *this;
+}
+int1024& int1024::operator-=(const int1024 & other){
+	*this = *this - other;
+	return *this;
+}
+int1024& int1024::operator*=(const int1024 & other){
+	*this = *this * other;
+	return *this;
+}
+int1024& int1024::operator/=(const int1024 & other){
+	*this = *this / other;
+	return *this;
+}
+int1024 int1024::operator++(int){
+	int1024 copy = *this;
+	*this = copy + 1;
+	return copy;
+}
+int1024 int1024::operator--(int){
+	int1024 copy = *this;
+	*this = copy - 1;
+	return copy;
+}
+bool int1024::odd(){
+	return (*this)[0] & 1;
+}
+bool int1024::even(){
+	return !odd();
+
 }

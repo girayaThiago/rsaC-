@@ -6,8 +6,7 @@
 #include <gmpxx.h> // big ints c++
 #include <openssl/sha.h>
 #include <openssl/evp.h>
-#include <openssl/aes.h>
-#include <openssl/bn.h>
-typedef unsigned long long int int1024;
+#include "int1024.h"
+// typedef mpz_class int1024;
 
 #endif
