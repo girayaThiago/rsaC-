@@ -12,53 +12,69 @@
 int1024 RSA_Class::get_random_primo(int1024 proibido = 0){
     int1024 p = rand()%100000+100000;
     if (!(p.odd())) p++;
-    while (MillerRabin::test(10,p)){
+    while (!MillerRabin::test(6,p) || p == proibido){
         p+=2;
     }
     return p;
 }
 
 // calcula o lambda dos primos p e q, que é a = p-1 b = q-1 |a*b|/gcd(a,b);
-int1024 RSA_Class::get_lambda(int1024 p, int1024 q){
+int1024 RSA_Class::get_lambda_d(int1024 p, int1024 q, int1024* lambda_p, int1024* d_p){
     p--;
     q--;
-    return p*q/gcd(p,q);
-}
-
-// calcula o valor de d para que d*e mod lambda(n) = 1
-int1024 RSA_Class::get_d(int1024 e, int1024 lambda_n){
-    int1024 d = 1;
-    while ((d*e)%lambda_n != 1) d++;
-    return d;
-}
-
-// calcula o máximo divisor comum via algoritmo de Eclide
-int1024 RSA_Class::gcd(int1024 a, int1024 b){
-    while (a != b){
-        if (a > b) {
-            a -= b;
-        } else {
-            b -= a;
-        }
+    mpz_t num1, num2, gcd,d1, d2, e, lambda;
+	mpz_inits(num1, num2, lambda, gcd, e, d1, d2, NULL);
+	mpz_set_str(num1,p.to_string().c_str(), 2);
+	mpz_set_str(num2,q.to_string().c_str(), 2);
+    mpz_set_ui(e,65537);
+    mpz_mul(lambda, num1, num2);
+    mpz_gcdext(gcd,d1,d2,num1,num2);
+    mpz_div(lambda, lambda, gcd);
+    mpz_gcdext(gcd, d1,d2,e,lambda);
+    //recupera os valores
+    char c[1025];
+    char c2[1025];
+	mpz_get_str(c,2,lambda);
+	int1024 test = std::string(c);
+    *lambda_p = test;
+    std::cout << "will assign";
+    if (mpz_cmp(d1,d2) > 0){
+        std::cout << " d1 = ";
+        mpz_out_str(stdout, 10,d1);
+        std::cout << std::endl;
+        mpz_out_str(stdout, 2,d1);
+        mpz_get_str(c2,2,d1);  
+    } else {
+        std::cout << " d2 = ";
+        mpz_out_str(stdout, 10,d2);
+        std::cout << std::endl;
+        mpz_out_str(stdout, 2,d2);
+        mpz_get_str(c2,2,d2);    
     }
-    return a;
+    std::cout << std::endl;
+    int1024 test2 = std::string(c2);
+    *d_p = test2;
+    // std::cout << "assigned test2 -> to *dp" << std::endl;
+	mpz_clears(num1, num2, lambda, gcd, d1, e, d2, NULL);
+    // std::cout << "cleared mpz_nums" << std::endl;
+    return 0;
 }
 
 std::pair<RSA_Private_Key, RSA_Public_Key> RSA_Class::generate_keys(){
     int1024 n, lambda_n, d;
     // std::cout << "entrou em generate keys()" << std::endl;
     int1024 p = get_random_primo();
-    // std::cout << "gerou o primeiro numero" << std::endl;
     // std::cout << p.to_string() << std::endl;
     int1024 q = get_random_primo(p);
-    // std::cout << "gerou o segundo numero" << std::endl;
     // std::cout << q.to_string() << std::endl;
-
     n = p*q;
-    lambda_n = get_lambda(p,q);
+
+    get_lambda_d(p,q,&lambda_n,&d);
+    
     // std::cout << lambda_n.to_string() << std::endl;
     int1024 e = 65537;
-    d = get_d(e, lambda_n);
+    if (e * d % lambda_n == 1) std::cout << "deu bom" << std::endl;
+    else std::cout << "deu ruim" << std::endl;
     return std::make_pair(RSA_Private_Key(p,q,d,lambda_n), RSA_Public_Key(n,e));
 }
 

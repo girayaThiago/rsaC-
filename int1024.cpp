@@ -19,14 +19,6 @@ std::string int1024::to_hex_string() {
 		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 	};
 
-	// for (int i = size(); i > 0; i-=4) {
-	// 	std::cout
-	// 		<< (*this)[i-1]
-	// 		<< (*this)[i-2]
-	// 		<< (*this)[i-3]
-	// 		<< (*this)[i-4]
-	// 		<< " ";
-	// }
 	std::cout << std::endl;
 
 	for (int i = size(); i > 0; i-=4) {
@@ -143,12 +135,10 @@ int1024 int1024::operator/(const int1024 & other) const {
 	mpz_set_str(num,this->to_string().c_str(), 2);
 	mpz_set_str(num2,other.to_string().c_str(), 2);
 	mpz_div(num3, num, num2);
-	mpz_out_str(stdout, 10, num3);
-	std::cout << std::endl;
 	char c[1025];
 	mpz_get_str(c,2,num3);
-	std::cout << c << std::endl;
 	int1024 test = std::string(c);
+	mpz_clears(num, num2, num3, NULL);
 	return test;
 }
 
@@ -158,12 +148,10 @@ int1024 int1024::operator%(const int1024 & other) const {
 	mpz_set_str(num,this->to_string().c_str(), 2);
 	mpz_set_str(num2,other.to_string().c_str(), 2);
 	mpz_mod(num3, num, num2);
-	mpz_out_str(stdout, 10, num3);
-	std::cout << std::endl;
 	char c[1025];
 	mpz_get_str(c,2,num3);
-	std::cout << c << std::endl;
 	int1024 test = std::string(c);
+	mpz_clears(num, num2, num3, NULL);
 	return test;
 }
 
